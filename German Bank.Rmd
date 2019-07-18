@@ -1,0 +1,10 @@
+Read in Data
+```{r}
+install.packages("devtools")
+install.packages("mlr", dependencies = TRUE, suggests = TRUE)
+install.packages("mlrMBO", dependencies = TRUE)
+install.packages("tidyverse", dependencies = TRUE)
+devtools::install_github("Prometheus77/ucimlr")
+devtools::install_github("Prometheus77/actools")
+```
+

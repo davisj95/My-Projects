@@ -1,0 +1,83 @@
+---
+title: "Breast Cancer Prediction Dataset"
+author: "Jake Davis"
+date: "July 17, 2019"
+output: html_document
+background: This dataset was obtained from the University of Wisconsin Hospitals, Madison from
+            Dr. William H. Wolberg. Data includes the following - 
+              1. mean_radius    - mean distance from center to points on the perimeter
+              2. mean_texture    - sd of gray-scale values
+              3. mean_perimeter  - mean size of the core tumor
+              4. mean_area       - mean area of the core tumor
+              5. mean_smoothness - mean of local variation in radius lengths
+              6. diagnosis       - 1=benign, 0=malignant 
+---
+
+1. Read in data, check to see if read in correctly
+2. Get structure/summary of data
+```{r}
+#Read in libraries
+library(tidyverse)
+library(car)
+library(ROCR)
+
+#Read in data and quickly look over
+dat <- read.csv("Breast_cancer_data.csv",header=TRUE)
+
+head(dat)
+tail(dat)
+str(dat)
+summary(dat)
+#No missing data, so that's good!
+
+#Rename columns for ease
+names(dat) <- c("Radius","Texture","Perimeter","Area","Smoothness","Diagnosis")
+```
+
+EDA/Visualizations
+```{r}
+#Histograms of each variable
+for(i in 1:ncol(dat)){
+  hist(dat[,i])
+}
+# The data looks pretty normal, lets see if there are correlations
+
+# Correlation table
+cor(dat)  #Radius/Perimeter/Area have strong positive corr, all three have strong neg. corr with Diagnosis
+
+# Visualize correlations
+ggplot(dat,aes(Radius,Perimeter)) + geom_point() + geom_smooth()
+ggplot(dat,aes(Radius,Area)) + geom_point() + geom_smooth()       #There is almost an exponential curve
+ggplot(dat,aes(Radius,Diagnosis)) + geom_point() + geom_smooth()
+
+#It makes sense that Radius, Perimeter and Area all are heavily correlated since Perimeter and Area are functions of radius
+```
+
+Build a model
+```{r}
+set.seed(101) #To replicate
+rows <- sample(1:nrow(dat), nrow(dat)*0.3,replace=FALSE)
+train <- dat[rows,]
+test <- dat[-rows,]
+
+mod <- glm(Diagnosis ~ Radius + Texture + Smoothness, data=train, family="binomial")
+summary(mod) #All values are significant, AIC=53.276
+
+#Check collinearity
+vif(mod)  # Low vif values are good
+
+#ROC Curve/AUC
+train.pred <- prediction(predict(mod, type="response"), train$Diagnosis)
+train.perf<-performance(train.pred, measure="tpr", x.measure="fpr")
+plot(train.perf)
+abline(0,1)
+
+#test.data
+test.pred <- prediction(predict(mod, newdata=test, type="response"), test$Diagnosis)
+test.perf<-performance(test.pred, measure="tpr", x.measure="fpr")
+plot(test.perf, add=TRUE, col="royalblue")
+
+performance(test.pred, measure="auc") #0.9797, really good!
+
+```
+

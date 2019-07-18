@@ -1,0 +1,75 @@
+Education Performance Project
+
+Library to read only one sheet of an excel file
+```{r}
+install.packages("readxl")
+library("readxl")
+```
+
+
+Read in Data/Clean Up
+```{r}
+setwd("~/1. Personal/My Projects/Funding")
+Funding <- read.csv("FundData09.csv", header=FALSE, stringsAsFactors=FALSE)
+
+names(Funding) <- Funding[2,]
+Funding <- Funding[-c(1,2),]
+
+for(j in 1:20){
+  for(i in 1:54){
+    Funding[i,j] <- gsub("%","", Funding[i,j])
+    Funding[i,j] <- gsub("\\$","", Funding[i,j])
+    Funding[i,j] <- gsub(",","", Funding[i,j])
+  }
+}
+
+numVec <- c(2:20)
+for(i in numVec){
+  Funding[,i] <- as.numeric(Funding[,i])
+}
+
+Funding <- Funding[-c(52:54),]
+
+str(Funding)
+
+for(i in 11:19){
+  Funding[,i] <- Funding[,i]/100
+}
+```
+
+
+Look at Data
+```{r}
+library(ggplot2)
+expVar <- c(2:5,7:20)
+for(i in expVar){
+  print(ggplot(Funding, aes(x=Total, y=Funding[,i])) + geom_point())
+}
+```
+
+Make a Model
+```{r}
+mod_null <- glm(Total/PPF ~ 1, data = Funding,
+                weights=PPF, family = "binomial")
+mod_full <- glm(Total/PPF ~., family = "binomial", data = Funding, 
+    weights = PPF)
+
+mod_f <- step(mod_null, 
+              scope = list(lower = mod_null, upper = mod_full),
+              direction = "forward",
+              trace = FALSE)
+
+mod_b <- step(mod_null, 
+              scope = list(lower = mod_null, upper = mod_full),
+              direction = "backward",
+              trace = FALSE)
+
+BIC(mod_f)
+summary(mod_f)
+BIC(mod_b)
+summary(mod_b)
+vif(mod_f)
+exp(confint(mod_f))
+exp(mod_f$coefficients)
+```
+

@@ -1,0 +1,25 @@
+Current git commit:
+f37174e2b3d21721899713fb2965fcc3ce278309
+
+Current ouput md5 hashes:
+MD5 (output/CollegeScorecardDataDictionary-09-12-2015.csv) = d53a61d3b8167abf198df473077e27fd
+MD5 (output/MERGED1996_PP.csv) = 2edd60d06efca1cafd247980c826f1b6
+MD5 (output/MERGED1997_PP.csv) = e0d2670ba1bb71f7a93d65ed11f7f19d
+MD5 (output/MERGED1998_PP.csv) = 25ba4091678293f26ca3a029a6a8aa62
+MD5 (output/MERGED1999_PP.csv) = 069df2d718625fc68eac027da6e54d6c
+MD5 (output/MERGED2000_PP.csv) = d6779168bd1dfa6059ce4962f3e53f28
+MD5 (output/MERGED2001_PP.csv) = a8472107d164af6ba43a6a46140226fa
+MD5 (output/MERGED2002_PP.csv) = a2dafe89da9377dd789704fd8b35781e
+MD5 (output/MERGED2003_PP.csv) = 32c1ba60ca2ca4dfa3a436482a357090
+MD5 (output/MERGED2004_PP.csv) = 238e9ee89927c3f2c48834e4f6766e05
+MD5 (output/MERGED2005_PP.csv) = 2ad8af767081a5c829999908a870c6e2
+MD5 (output/MERGED2006_PP.csv) = 001670ad39795969e4882607c6204922
+MD5 (output/MERGED2007_PP.csv) = 61f23f05c04575bac661c5827c0b3cca
+MD5 (output/MERGED2008_PP.csv) = feb6522f20e8cca278611784620d6c30
+MD5 (output/MERGED2009_PP.csv) = de01c1e401d2e4c3be3383cd66bbfe5f
+MD5 (output/MERGED2010_PP.csv) = b16b64cccbef939203754953aaf3af03
+MD5 (output/MERGED2011_PP.csv) = 3a98ab3b019c7d2dccd7abf4c60181eb
+MD5 (output/MERGED2012_PP.csv) = 4bd6cd68f64be01bdc84676f05be2b18
+MD5 (output/MERGED2013_PP.csv) = 627aba1d974ff52a13042f09b488a4f0
+MD5 (output/Scorecard.csv) = 6f712ffd640b4182c9fde5bcd7e90140
+MD5 (output/database.sqlite) = 4b88aa0448a949281b6c5d9f8ec85fd1

@@ -1,0 +1,48 @@
+---
+title: "Machine Learning Project"
+output: html_notebook
+---
+
+
+
+```{r}
+bike <- read.csv("bikeshare.csv",header=TRUE)
+head(bike)
+```
+
+EDA
+```{r}
+library(ggplot2)
+ggplot(bike, aes(x=temp, y=count))+geom_jitter(aes(color=temp, alpha=0.1))
+
+bike$datetime <- as.POSIXct(bike$datetime, format="%Y-%m-%d %H:%M:%S")
+ggplot(bike, aes(x=datetime, y=count))+geom_jitter(aes(color=temp, alpha=0.1))
+
+cor(bike$temp, bike$count)
+
+ggplot(bike, aes(x=season, y=count, fill=factor(season)))+geom_boxplot(aes(group=factor(season)))
+
+time.stamp <- bike$datetime
+
+for(i in 1:length(time.stamp)){
+  time.stamp <- format(time.stamp,"%H")
+}
+bike$hour <- time.stamp
+
+ggplot(bike, aes(x=hour,y=count, color=temp))+geom_jitter(alpha=0.3)+scale_color_gradientn(colors=c("black","blue","green","yellow","red"))
+
+```
+
+Building the Model
+```{r}
+temp.model <- lm(count~temp,data=bike)
+summary(temp.model)
+
+newdata <- data.frame(temp=25)
+predict(temp.model, newdata)
+
+bike$hour <- as.numeric(bike$hour)
+mod <- lm(count~. -casual-registered-datetime-atemp, data=bike)
+summary(mod)
+```
+

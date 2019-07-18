@@ -1,0 +1,11 @@
+"0","bar_count <- function(x){
+  little <- x%%5
+  big <- (x-little)/5
+  return(big+little)
+}
+bar_count(59)
+"
+"1","[1]"
+"1"," 15"
+"1","
+"

@@ -1,0 +1,7 @@
+"0","# Ex 11: What is the mpg of the Hornet Sportabout?
+df[""Hornet Sportabout"",""mpg""]
+"
+"1","[1]"
+"1"," 18.7"
+"1","
+"

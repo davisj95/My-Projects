@@ -1,0 +1,172 @@
+---
+title: "Chicago Schools Project"
+class: STAT 281
+name: Jacob Davis
+---
+
+Read in Data/Clean Up
+```{r}
+school <- read.csv("Chicago_Public_Schools_-_Progress_Report_Cards__2011-2012_.csv", header=TRUE)
+
+school <- school[,-c(1,4:11, 13,15,17,19,21,23,25,27,29,31,35,37:61,63,70:79)]
+names(school)
+
+#Remove Elementary/Middle School observations
+hs <- subset(school, school[,"Elementary..Middle..or.High.School"]!="ES")
+hs <- subset(hs, hs[,"Elementary..Middle..or.High.School"]!="MS")
+
+#"Elementary..Middle..or.High.School" column can now be deleted
+hs$Elementary..Middle..or.High.School <- NULL
+
+#Rename Columns because they are driving me crazy
+names(hs) <- c("Name", "Adequate_Performance", "CPS_Performance", 
+               "Healthy_Schools_Certified", "Safety_Score", "Family_Involvement_Score",
+               "Environment_Score", "Instruction_Score", "Leaders_Score",
+               "Teacher_Score", "Parent_Engagement_Score", "Parent_Environment_Score",
+               "Avg_Student_Attendance", "Rate_of_Misconduct", 
+               "Individualized_Education_Program_Compliance_Rate", "ACT",
+               "College_Eligibility", "Graduation_Rate", "College_Enroll_Rate",
+               "College_Enroll_Number_of_Students", "General_Services_Route",
+               "Freshman_On_Track_Rate")
+
+# Remove Parent_Engagement_Score, Parent_Environment_Score, and Family_Involvement_Score 
+# because doesn't have much data to work with
+hs$Parent_Engagement_Score <- NULL
+hs$Parent_Environment_Score <- NULL
+hs$Family_Involvement_Score <- NULL
+
+# Check to see how much data I have on Leaders_Score & Teacher_Score
+subset(hs, hs[,"Leaders_Score"]!="NDA")
+
+# I decided to take out Leaders_Score and Teacher_Score too because I don't want to 
+# cut my observations in half just to be able to use these two columns
+hs$Leaders_Score <- NULL
+hs$Teacher_Score <- NULL
+
+# Because I want to focus more on what scores we can try to improve, I want to
+# take out "CPS_Performance" (Not even sure what it means), "Adequate_Performance",
+# "Healthy_Schools_Certified", and General_Services_Route(Not even sure what it means)
+hs$CPS_Performance <- NULL
+hs$Adequate_Performance <- NULL
+hs$Healthy_Schools_Certified <- NULL
+hs$General_Services_Route <- NULL
+
+str(hs)
+
+#Some variables are being read as factors when in reality I want them treated as num
+#since they have a % sign, so I need to remove those, and convert the columns to num
+
+hs$Avg_Student_Attendance <- as.numeric(as.character(gsub("%","",hs$Avg_Student_Attendance)))
+hs$Individualized_Education_Program_Compliance_Rate <- as.numeric(as.character(gsub("%","",hs$Individualized_Education_Program_Compliance_Rate)))
+hs$ACT <- as.numeric(as.character(hs$ACT))
+hs$College_Eligibility <- as.numeric(as.character(hs$College_Eligibility))
+hs$Graduation_Rate <- as.numeric(as.character(hs$Graduation_Rate))
+hs$College_Enroll_Rate <- as.numeric(as.character(hs$College_Enroll_Rate))
+hs$Freshman_On_Track_Rate <- as.numeric(as.character(hs$Freshman_On_Track_Rate))
+
+str(hs)
+dim(na.omit(hs))
+
+# I want to write out this dataframe to a csv so I can go look for school is and get number of graduates
+write.csv(hs, file="hs.csv")
+```
+
+```{r}
+# Now that I found data I reupload hs.csv - NOTE: I took out a few obs because they didn't have 
+# the numbers I needed
+hs <- read.csv("hs.csv", header=TRUE)
+hs <- na.omit(hs)
+hs[,1] <- NULL #Get rid of school number when re-uploading data
+
+colNum <- c(5,6,7,9,10,12,13) #Columns to change to decimal form
+
+#Loop to change to decimals
+for(i in colNum) {
+  hs[,i] <- hs[,i]/100
+}
+
+hs$Number_of_Students <- round(hs$Number_of_Graduates/hs$Graduation_Rate)
+
+library(car)
+hs$Rate_of_Misconduct<-hs$Rate_of_Misconduct*100
+hs$Freshman_On_Track_Rate <- hs$Freshman_On_Track_Rate*100
+hist(hs$Rate_of_Misconduct)
+```
+
+
+EDA
+```{r}
+library(ggplot2)
+ggplot(hs, aes(x=Safety_Score, y=Graduation_Rate)) + geom_point()
+ggplot(hs, aes(x=Environment_Score, y=Graduation_Rate)) + geom_point()
+ggplot(hs, aes(x=Instruction_Score, y=Graduation_Rate)) + geom_point()
+ggplot(hs, aes(x=Avg_Student_Attendance, y=Graduation_Rate)) + geom_point()
+ggplot(hs, aes(x=Rate_of_Misconduct, y=Graduation_Rate)) + geom_point()
+ggplot(hs, aes(x=Individualized_Education_Program_Compliance_Rate, y=Graduation_Rate)) + geom_point()
+ggplot(hs, aes(x=ACT, y=Graduation_Rate)) + geom_point()
+ggplot(hs, aes(x=Freshman_On_Track_Rate, y=Graduation_Rate)) + geom_point()
+ggplot(hs, aes(x=Number_of_Graduates, y=Graduation_Rate)) + geom_point()
+```
+
+
+Train/Test Sets
+```{r}
+test.row <- sample(1:69, 13, replace=FALSE)
+hs.train <- hs[-test.row,]
+hs.test <- hs[test.row,]
+```
+
+
+Variable Selection
+```{r}
+mod_null <- glm(Number_of_Graduates/Number_of_Students ~ 1, data = hs,
+                weights=Number_of_Students, family = "binomial")
+mod_full <- glm(Number_of_Graduates/Number_of_Students ~ ACT + 
+    Rate_of_Misconduct + Freshman_On_Track_Rate + Environment_Score + 
+    Instruction_Score, family = "binomial", data = hs, 
+    weights = Number_of_Students)
+
+mod_f <- step(mod_null, 
+              scope = list(lower = mod_null, upper = mod_full),
+              direction = "forward",
+              trace = FALSE)
+
+BIC(mod_f)
+summary(mod_f)
+vif(mod_f)
+exp(confint(mod_f))
+exp(mod_f$coefficients)
+
+```
+
+
+Prediction Capabilities
+```{r}
+hs$PredGrad <-(predict(mod_f, newdata=hs, type = "response")*hs$Number_of_Students)
+
+hs$PredGrad <- round(hs$PredGrad)
+
+bias <- (hs$PredGrad-hs$Number_of_Graduates)
+hist(bias)
+hs[bias>50|bias<(-50),]
+rmse <- sqrt(mean((hs$PredGrad-hs$Number_of_Graduates)^2))
+
+library(dplyr)
+hs$PredRate <- hs$PredGrad/hs$Number_of_Students
+hist(hs$PredRate)
+hs$Diff <- abs(hs$PredRate-hs$Graduation_Rate)
+hist(hs$Diff)
+hs[hs$Diff>(.11),]
+
+#Learn to interpret the exp coefficients
+#Talk about bias, weaknesses, and 7 schools that I did poorly in predicting
+```
+
+
+
+
+
+
+
+
+

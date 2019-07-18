@@ -1,0 +1,107 @@
+---
+title: "Swim Transfer Data"
+author: "Jake Davis"
+date: "June 26, 2019"
+output: pdf_document
+---
+
+```{r}
+
+library(tidyr)
+library(dplyr)
+library(stringr)
+
+files <-list.files(pattern=glob2rx("Times For*.csv"))
+df <- data.frame()
+
+for(i in files){
+  temp <- read.csv(i,header=TRUE)
+  temp$Name <- str_sub(i,11,-5)
+  df <- rbind(df,temp)
+}
+
+df$Relay <- FALSE
+
+for(i in 1:nrow(df)){
+  if(str_sub(df$Time[i],-1,-1)=="r"){
+    df$Relay[i]<-TRUE
+  }
+}
+df$Swim.Date <- as.POSIXct(df$Swim.Date,format="%m/%d/%Y")
+
+mast <- read.csv("Swimmer Data.csv",header=TRUE)
+mast$Pos. <- gsub(x=mast$Pos.,pattern=" ", replacement = "")
+mast <- separate(mast, Pos.,into=c("EV1","EV2","EV3","EV4","EV5","EV6","EV7", "EV8", "EV9", "EV10", "EV11", "EV12", "EV13", "EV14", sep=","))
+mast <- mast[,c(1:12,21:22)]
+ 
+BestEvents <- list()
+for(i in 1:nrow(mast)){
+  vec <- character()
+  for(j in 6:12){
+    if(is.na(mast[i,j])==FALSE){
+      vec[(j-5)]<-mast[i,j]
+    }
+  }
+  BestEvents[[i]]<-vec
+}
+
+names(BestEvents) <- mast$Name
+
+#Remove Space within df events
+df$Event <- gsub(" ","",df$Event)
+
+for(i in 1:nrow(mast)){
+  be <- BestEvents[[i]]
+  df2 <- subset(df,df$Name==mast$Name[i])
+  df2 <- df2[order(df2$Swim.Date),]
+  df2 <-subset(df2,df2$Relay==FALSE & df2$Event== be)
+  
+  for(j in be){
+    df3 <- subset(df2,df2$Event==j)
+    times <- df3$Time
+    v <- NULL
+    v <- separate(tibble(times = times), times, sep = ":",into = c("min", "sec"), fill = "left", convert = T) %>%
+         mutate(min = ifelse(is.na(min), 0, min),seconds = 60 * min + sec)
+    df3$Seconds <- v$seconds
+    p <- ggplot(df3,aes(Swim.Date, Seconds)) + geom_point(pch=1) + geom_smooth() + ggtitle(paste(names(BestEvents[i]),"",j))
+    print(p)
+  }
+}
+
+###############################################################################################################################################
+
+
+
+
+
+
+df <- read.csv("Times For Jake Gibbons.csv",header=TRUE, stringsAsFactors=FALSE)
+
+#Find Relay Splits and Remove 
+df$Relay <- FALSE
+for(i in 1:nrow(df)){
+  if(str_sub(df$Time[i],-1,-1)=="r"){
+    df$Relay[i]<-TRUE
+  }
+}
+df$Swim.Date <- as.POSIXct(df$Swim.Date,format="%m/%d/%Y")
+df <- df[order(df$Swim.Date),]
+
+for(i in c("500 FR","1000 FR","1650 FR")){
+  #subset to i event
+  df2 <-subset(df,df$Relay==FALSE & df$Event==i)
+  
+  #Convert swim time into seconds and reattach to df
+  times <- df2$Time
+  v <- NULL
+  v <- separate(tibble(times = times), times, sep = ":",into = c("min", "sec"), fill = "left", convert = T) %>%
+       mutate(min = ifelse(is.na(min), 0, min),seconds = 60 * min + sec)
+  df2$Seconds <- v$seconds
+  p <- ggplot(df2,aes(Swim.Date, Seconds)) + geom_point(pch=1) + geom_smooth() + ggtitle(i)
+  (print(p))
+  
+}
+
+
+```
+

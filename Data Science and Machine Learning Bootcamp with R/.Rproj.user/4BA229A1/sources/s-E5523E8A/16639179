@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1560021555426.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "16639179",
+    "lastKnownWriteTime" : 1560027074,
+    "last_content_update" : 1560027074395,
+    "path" : "~/My Projects/Titanic/Titanic_Analysis.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "82,13",
+        "scrollLine" : "51"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

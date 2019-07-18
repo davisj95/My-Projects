@@ -1,0 +1,56 @@
+---
+title: "ggplot2"
+author: "Jake Davis"
+date: "May 28, 2019"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(ggthemes)
+
+# Histogram of hwy mpg values:
+ggplot(mpg, aes(x=hwy))+geom_histogram(fill="blue", alpha=0.5)
+
+# Barplot of car counts per manufacturer with color fill defined by cyl count
+ggplot(mpg, aes(x=manufacturer))+geom_bar(aes(fill=factor(cyl)))
+
+# Swich to txhousing dataset
+df <- txhousing
+
+# Create a scatterplot of volume vs sales. Afterwards play around with alpha and color aguments to clarify information
+pl <- ggplot(df, aes(x=sales, y=volume))+geom_jitter(size=0.7, color="blue", alpha=0.1)
+pl
+
+# Add a smooth fit line to the scatterplot above. (geom_smooth())
+
+pl + geom_smooth()
+
+```
+
+Economist Visualisation Project
+```{r}
+df <- read.csv("Economist_Assignment_Data.csv")
+df[,1] <- NULL
+
+pl <- ggplot(df, aes(x=CPI,y=HDI)) + geom_point(aes(color=factor(Region)), shape=1, size=2)
+pl2 <- pl + geom_smooth(aes(group=1), method=lm, formula=y~log(x), se=FALSE, color='red')
+
+pointsToLabel <- c("Russia", "Venezuela", "Iraq", "Myanmar", "Sudan",
+                   "Afghanistan", "Congo", "Greece", "Argentina", "Brazil",
+                   "India", "Italy", "China", "South Africa", "Spane",
+                   "Botswana", "Cape Verde", "Bhutan", "Rwanda", "France",
+                   "United States", "Germany", "Britain", "Barbados", "Norway", "Japan",
+                   "New Zealand", "Singapore")
+
+pl3 <- pl2 + geom_text(aes(label = Country), color = "gray20", 
+                data = subset(df, Country %in% pointsToLabel),check_overlap = TRUE)
+
+pl4 <- pl3 + theme_bw() + scale_x_continuous(name="Corruption Perceptions Index, 2011 (10=least corrupt)",
+                                      limits=c(1,10), breaks=1:10)
+
+pl5 <- pl4 + scale_y_continuous(name="Human Development Index, 2011 (1=Best)", limits=c(0.2,1))
+
+pl5 + ggtitle("Corruption and human development")
+```
+

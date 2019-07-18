@@ -1,0 +1,95 @@
+---
+title: "Functions"
+author: "Jake Davis"
+date: "May 27, 2019"
+output: word_document
+---
+
+```{r}
+
+# Ex 1: Create a function that will return the product of two integers.
+
+prod <- function(x1,x2){
+  return(x1*x2)
+}
+
+prod(28,6)
+
+# Ex 2: Create a function that accepts two arguments, an integer and a vector of integers. It returns TRUE if the integer is present in the vector, otherwise it returns FALSE. Make sure you pay careful attention to your placement of the return(FALSE) line in your function!
+  
+x <- 11
+v <- c(1:10)
+
+num_check <- function(x1,v1){
+  for(i in 1:length(v1)){
+    if(x1==v1[i]){
+      return(TRUE)
+    }
+  }
+  return(FALSE)
+}
+
+num_check(x,v)
+  
+  
+# Ex 3: Create a function that accepts two arguments, an integer and a vector of integers. It returns the count of the number of occurences of the integer in the input vector.
+
+x <- 8
+v <- c(1:10,5,5,5,7,6,8,9,6,34,123,5,5,5)
+
+num_count <- function(x1,v1){
+  total <- 0
+  for(i in 1:length(v1)){
+    if(x1==v1[i]){
+      total <- total+1
+    }
+  }
+  return(total)
+}
+
+num_count(x,v)
+
+
+# Ex 4: We want to ship bars of aluminum. We will create a function that accepts an integer representing the requested kilograms of aluminum for the package to be shipped. To fullfill these order, we have small bars (1 kilogram each) and big bars (5 kilograms each). Return the least number of bars needed.
+
+# For example, a load of 6 kg requires a minimum of two bars (1 5kg bars and 1 1kg bars). A load of 17 kg requires a minimum of 5 bars (3 5kg bars and 2 1kg bars).
+
+bar_count <- function(x){
+  little <- x%%5
+  big <- (x-little)/5
+  return(big+little)
+}
+bar_count(59)
+
+
+# Ex 5: Create a function that accepts 3 integer values and returns their sum. However, if an integer value is evenly divisible by 3, then it does not count towards the sum. Return zero if all numbers are evenly divisible by 3. Hint: You may want to use the append() function.
+
+summer <- function(x1,x2,x3){
+   out <- c()
+    if (x1%%3 != 0){
+        out <- append(x1,out)
+    }
+    if (x2 %% 3 != 0){
+        out <- append(x2,out)
+    }
+    if (x3 %% 3 != 0){
+        out <- append(x3,out)
+    }
+    return(sum(out))  
+}
+
+
+# Ex 6: Create a function that will return TRUE if an input integer is prime. Otherwise, return FALSE. You may want to look into the any() function.
+
+prime_check <- function(num) {
+   if (num == 2) {
+      return(TRUE)
+   } else if (any(num %% 2:(num-1) == 0)) {
+      return(FALSE)
+   } else { 
+      return(TRUE)
+   }
+}
+
+
+```
