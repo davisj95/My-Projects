@@ -2,11 +2,8 @@
 
 library(quantmod)
 library(tidyverse)
-library(openxlsx)
-library(gmailr)
 
-
-symbols <- read.xlsx("Tickers.xlsx")
+symbols <- stockSymbols()
 symbols <- symbols$Symbol
 
 finalData <- data.frame()
